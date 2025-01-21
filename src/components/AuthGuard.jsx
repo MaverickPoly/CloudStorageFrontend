@@ -12,7 +12,7 @@ export default function AuthGuard({ children }) {
     if (!loading && !isAuthenticated) {
       router.replace("/login");
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading]);
 
   if (loading) {
     return <p>Loading...</p>;
