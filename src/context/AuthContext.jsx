@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
     loadUser();
-  }, [loading]);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
