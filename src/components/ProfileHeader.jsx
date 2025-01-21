@@ -27,7 +27,7 @@ export default function ProfileHeader() {
       <div className="w-full max-w-7xl mx-auto px-6 md:px-8">
         <div className="flex items-center justify-center sm:justify-start relative z-10 mb-5 w-64 h-64">
           <img
-            src={`http://127.0.0.1:5000/${user.profile_image}`.replace(
+            src={`https://cloudstoragebackend.onrender.com/${user.profile_image}`.replace(
               `\\`,
               "/"
             )}

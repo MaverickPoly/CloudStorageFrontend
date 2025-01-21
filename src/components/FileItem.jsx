@@ -49,7 +49,10 @@ export default function FileItem({ file }) {
     <div className="relative w-72 p-3 bg-neutral-100 shadow-md">
       <div className="flex justify-between mb-5 items-start">
         <Link
-          href={`http://127.0.0.1:5000/${file.filepath}`.replace(`\\`, "/")}
+          href={`https://cloudstoragebackend.onrender.com/${file.filepath}`.replace(
+            `\\`,
+            "/"
+          )}
         >
           <div className="bg-white rounded-xl p-4 hover:bg-blue-50 border border-transparent hover:border-neutral-200">
             <FaRegFile size={30} />
