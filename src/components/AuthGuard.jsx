@@ -10,7 +10,7 @@ export default function AuthGuard({ children }) {
 
   useEffect(() => {
     if (!loading && Object.keys(user).length === 0) {
-      router.push("/login");
+      router.replace("/login");
     }
   }, [user, router, loading]);
 
