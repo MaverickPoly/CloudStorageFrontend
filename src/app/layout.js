@@ -1,6 +1,7 @@
 import { AuthContext, AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 import { FilesProvider } from "@/context/FilesContext";
+import { Analytics } from "@vercel/analytics/react"
 
 export const metadata = {
   title: "File Storage App",
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
             {children}
           </FilesProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
