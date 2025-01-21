@@ -1,101 +1,143 @@
-import Image from "next/image";
+"use client";
+
+import Link from "next/link";
+import { useContext, useEffect, useState } from "react";
+import { FilesContext } from "@/context/FilesContext";
+import AuthGuard from "@/components/AuthGuard";
+import { CiImageOn } from "react-icons/ci";
+import { FaVideo } from "react-icons/fa";
+import { MdAudiotrack, MdBlock, MdOutlineMenu, MdOutlineFileUpload } from "react-icons/md";
+import { VscFileSubmodule } from "react-icons/vsc";
+import { IoIosDocument } from "react-icons/io";
+import { TbFileDescription } from "react-icons/tb";
+import { IoClose, IoPerson } from "react-icons/io5";
+import FileItem from "@/components/FileItem";
+
+const categories = [
+  { name: "All", icon: <VscFileSubmodule size={24} /> },
+  { name: "Image", icon: <CiImageOn size={24} /> },
+  { name: "Video", icon: <FaVideo size={24} /> },
+  { name: "Audio", icon: <MdAudiotrack size={24} /> },
+  { name: "Document", icon: <IoIosDocument size={24} /> },
+  { name: "Other", icon: <TbFileDescription size={24} /> },
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [currentCategory, setCurrentCategory] = useState("All");
+  const [filteredFiles, setFilteredFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [sideBarOpen, setSideBarOpen] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const { files, usedStorage } = useContext(FilesContext);
+
+  const toggleSideBar = () => setSideBarOpen((prev) => !prev);
+
+  useEffect(() => {
+    if (!files) {
+      setIsLoading(true);
+      return;
+    }
+
+    if (currentCategory === "All") {
+      setFilteredFiles([...files]);
+    } else {
+      setFilteredFiles(files.filter((file) => file.category === currentCategory));
+    }
+    setIsLoading(false);
+  }, [currentCategory, files]);
+
+  // Close the sidebar when clicking somewhere outside, for mobile devices
+  const handleClickOutside = (event) => {
+    if (sideBarOpen && !event.target.closest(".sidebar")) {
+      setSideBarOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [sideBarOpen]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p>Loading files...</p>
+      </div>
+    );
+  }
+
+  return (
+    <AuthGuard>
+      <div className="flex">
+        {/* Sidebar */}
+        <div
+          className={`sidebar flex fixed lg:relative shadow-lg p-4 h-screen flex-col justify-between sm:w-80 w-full 
+          transition-all duration-300 bg-white z-50 ${sideBarOpen ? "left-0" : "-left-full lg:left-0"
+            }`}
+        >
+          <div className="space-y-2">
+            {categories.map((category, index) => (
+              <div
+                key={index}
+                className={`p-3 rounded-md flex gap-4 items-center cursor-pointer shadow-sm 
+                  ${currentCategory === category.name
+                    ? "bg-blue-300 hover:bg-blue-400"
+                    : "bg-neutral-50 hover:bg-neutral-100"
+                  }`}
+                onClick={() => {
+                  setCurrentCategory(category.name);
+                  if (sideBarOpen) setSideBarOpen(false);
+                }}
+              >
+                <div
+                  className={`rounded-full p-2 ${currentCategory === category.name ? "bg-blue-200" : "bg-white"
+                    }`}
+                >
+                  {category.icon}
+                </div>
+                <h2 className="text-lg">{category.name}</h2>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <Link href="/profile">
+              <div className="w-full bg-blue-500 text-white p-3 text-center rounded-lg flex items-center justify-center gap-3 hover:bg-blue-600 mb-2">
+                <IoPerson size={21} />
+                Profile
+              </div>
+            </Link>
+            <Link href="/upload">
+              <div className="w-full bg-indigo-500 text-white p-3 text-center rounded-lg flex items-center justify-center gap-3 hover:bg-indigo-600">
+                <MdOutlineFileUpload size={21} />
+                Upload File
+              </div>
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        {/* Menu Button */}
+        <div
+          className="fixed top-3 right-3 block lg:hidden p-2 rounded-md bg-neutral-200 cursor-pointer z-50"
+          onClick={toggleSideBar}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          {sideBarOpen ? <IoClose size={33} /> : <MdOutlineMenu size={33} />}
+        </div>
+
+        {/* Main Content */}
+        <div className="">
+          <div className="flex gap-4 p-5 flex-wrap">
+            {filteredFiles.length !== 0 ? filteredFiles.map((file) => (
+              <FileItem key={file.id} file={file} />
+            )) : (
+              <div className="text-xl mx-auto w-full flex items-center">
+                <MdBlock size={60} className="mr-4" />
+                No files for this category yet.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </AuthGuard>
   );
 }
