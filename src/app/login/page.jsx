@@ -24,7 +24,7 @@ export default function Login() {
     try {
       const { data } = await login(form);
       setUser(data);
-      router.push("/profile");
+      router.push("/");
     } catch (error) {
       console.log(error);
 
