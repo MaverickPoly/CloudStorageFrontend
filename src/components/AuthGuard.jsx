@@ -5,17 +5,21 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect } from "react";
 
 export default function AuthGuard({ children }) {
-  const { user, loading } = useContext(AuthContext);
+  const { user, loading, isAuthenticated } = useContext(AuthContext);
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && Object.keys(user).length === 0) {
+    if (!loading && !isAuthenticated) {
       router.replace("/login");
     }
-  }, [user, router, loading]);
+  }, [isAuthenticated, loading, router]);
 
   if (loading) {
     return <p>Loading...</p>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return <>{children}</>;

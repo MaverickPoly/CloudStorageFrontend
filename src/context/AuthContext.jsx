@@ -4,13 +4,15 @@ import { fetchProfile, logout } from "@/services/api";
 import { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext({
-  user: {},
+  user: null,
+  isAuthenticated: false,
   setUser: () => {},
   handleLogout: () => {},
+  loading: true,
 });
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,21 +21,30 @@ export const AuthProvider = ({ children }) => {
         const { data } = await fetchProfile();
         setUser(data);
       } catch {
-        setUser({});
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
+
     loadUser();
   }, []);
 
   const handleLogout = async () => {
     await logout();
-    setUser({});
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, handleLogout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        setUser,
+        handleLogout,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
